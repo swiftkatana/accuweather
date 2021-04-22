@@ -1,25 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from "react";
+import { Route, HashRouter } from "react-router-dom";
+import { connect } from 'react-redux'
 
-function App() {
+
+import FavoritesPage from "./pages/FavoritesPage";
+import HomePage from "./pages/HomePage";
+import Header from "./components/Header";
+import { fetchFavorites, lastOpenLocation, lastOpenWeather } from "./redux/weather/weather_action";
+
+function App({ fetchFavorites, lastOpenLocation }) {
+
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const lastOpenWeatherKey = localStorage.getItem("lastOpenWeather");
+        if (lastOpenWeatherKey) {
+          await lastOpenLocation(lastOpenWeatherKey);
+        }
+        fetchFavorites();
+      } catch (error) {
+        alert("api error, The allowed number of requests has been exceeded")
+      }
+    })()
+  })
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <HashRouter >
+      <Route path='/' component={Header} />
+      <Route path="/" exact component={HomePage} />
+      <Route path="/favorites" exact component={FavoritesPage} />
+    </HashRouter>
   );
 }
 
-export default App;
+const mapStateToProps = (state) => ({
+
+})
+
+const mapDispatchToProps = {
+  fetchFavorites,
+  lastOpenWeather,
+  lastOpenLocation
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
